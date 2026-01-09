@@ -1,200 +1,496 @@
 <template>
-  <div class="fabric-whiteboard">
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-section">
-        <button @click="selectTool('select')" :class="{ active: activeTool === 'select' }" title="Select">
+  <div class="fabric-whiteboard flex flex-col gap-2 relative w-full h-full bg-gray-900">
+    <!-- Floating Toolbar -->
+    <div class=" top-4 w-full min-w-full transform  z-30">
+      <div class="flex flex-col   w-full md:flex-row md:flex-wrap items-center gap-2 p-3 bg-gray-800/80 backdrop-blur-xl 
+                   border border-gray-700/50 shadow-2xl shadow-black/40">
+        
+        <!-- Drawing Tools -->
+        <div class="flex items-center  gap-1 p-1 bg-gray-700/30 rounded-xl">
+          <!-- Select Tool -->
+          <button @click="selectTool('select')" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 relative group',
+                    activeTool === 'select' 
+                      ? 'bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 text-blue-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Select (V)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            </svg>
+            <div class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-blue-400 animate-pulse" 
+                 v-if="activeTool === 'select'"></div>
+          </button>
+          
+          <!-- Pencil Tool -->
+          <button @click="selectTool('pencil')" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 relative group',
+                    activeTool === 'pencil' 
+                      ? 'bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 text-purple-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Pencil (P)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </button>
+          
+          <!-- Rectangle Tool -->
+          <button @click="selectTool('rectangle')" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 relative group',
+                    activeTool === 'rectangle' 
+                      ? 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 text-emerald-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Rectangle (R)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+            </svg>
+          </button>
+          
+          <!-- Circle Tool -->
+          <button @click="selectTool('circle')" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 relative group',
+                    activeTool === 'circle' 
+                      ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/20 border border-amber-500/30 text-amber-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Circle (C)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          
+          <!-- Text Tool -->
+          <button @click="selectTool('text')" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 relative group',
+                    activeTool === 'text' 
+                      ? 'bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 border border-cyan-500/30 text-cyan-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Text (T)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+          
+          <!-- Eraser Tool -->
+          <button @click="selectTool('eraser')" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 relative group',
+                    activeTool === 'eraser' 
+                      ? 'bg-gradient-to-br from-red-500/20 to-red-600/20 border border-red-500/30 text-red-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Eraser (E)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="h-6 w-px bg-gray-600/50 hidden md:block"></div>
+        
+        <!-- Color Picker & Stroke -->
+        <div class="flex  items-center gap-3">
+          <!-- Color Palette -->
+          <div class="flex flex-row flex-wrap items-center gap-1 p-1 bg-gray-700/30 rounded-xl">
+            <button
+              v-for="color in colors"
+              :key="color"
+              @click="setColor(color)"
+              :class="[
+                'w-7 h-7 rounded-full border-2 transition-all duration-200 hover:scale-110',
+                strokeColor === color 
+                  ? 'border-white scale-110 ring-2 ring-white/30' 
+                  : 'border-gray-600 hover:border-gray-400'
+              ]"
+              :style="{ backgroundColor: color }"
+              :title="color"
+            />
+          </div>
+          
+          <div class="flex flex-col-reverse md:flex-row md:gap-2 flex-wrap align-middle" >          
+            <!-- Custom Color -->
+            <div class="relative  group">
+              <input type="color" v-model="strokeColor" @input="setColor(strokeColor)" 
+                    class="w-9 h-9 rounded-full cursor-pointer border-2 border-gray-600 hover:border-gray-400
+                            transition-all duration-200 hover:scale-110" />
+              <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs
+                          px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                          whitespace-nowrap pointer-events-none">
+                Custom Color
+              </div>
+            </div>
+            
+            <!-- Stroke Width -->
+            <div class="flex flex-col items-center gap-1">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded-full border border-gray-500" 
+                    :style="{ backgroundColor: strokeColor }"></div>
+                <span class="text-xs text-gray-300 font-medium">{{ strokeWidth }}px</span>
+              </div>
+              <input type="range" min="1" max="50" v-model="strokeWidth" @input="setStrokeWidth" 
+                    class="w-24 accent-blue-500 cursor-pointer" />
+            </div>
+          </div>
+        </div>
+        
+        <div class="h-6 w-px bg-gray-600/50 hidden md:block"></div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-row flex-wrap w-full items-center gap-1">
+          <!-- Fill Toggle -->
+          <button @click="toggleFill" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200 flex items-center gap-2',
+                    fillEnabled 
+                      ? 'bg-gradient-to-br from-pink-500/20 to-pink-600/20 border border-pink-500/30 text-pink-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Toggle Fill">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+            </svg>
+            <span class="hidden sm:inline text-sm">Fill</span>
+          </button>
+          
+          <!-- Undo/Redo -->
+          <button @click="undo" :disabled="!canUndo" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200',
+                    canUndo 
+                      ? 'hover:bg-gray-700/50 border border-transparent text-gray-300' 
+                      : 'opacity-30 cursor-not-allowed text-gray-500'
+                  ]"
+                  title="Undo (Ctrl+Z)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+          </button>
+          
+          <button @click="redo" :disabled="!canRedo" 
+                  :class="[
+                    'p-2.5 rounded-lg transition-all duration-200',
+                    canRedo 
+                      ? 'hover:bg-gray-700/50 border border-transparent text-gray-300' 
+                      : 'opacity-30 cursor-not-allowed text-gray-500'
+                  ]"
+                  title="Redo (Ctrl+Y)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+          
+          <!-- Clear -->
+          <button @click="clearCanvas" 
+                  class="p-2.5 rounded-lg hover:bg-red-500/20 border border-transparent 
+                         hover:border-red-500/30 text-gray-300 hover:text-red-300 
+                         transition-all duration-200"
+                  title="Clear Canvas">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+
+            <!-- Zoom Controls -->
+          <div class="flex w-fit items-center gap-2">
+            <div class="flex items-center gap-1">
+              <button @click="zoomOut" 
+                      class="p-2 rounded-lg hover:bg-gray-700/50 border border-transparent 
+                            text-gray-300 transition-all duration-200"
+                      title="Zoom Out (-)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+              </button>
+              <span class="text-sm font-semibold text-blue-300 bg-gray-800 px-3 py-1 rounded-lg">
+                {{ Math.round(zoom * 100) }}%
+              </span>
+              <button @click="zoomIn" 
+                      class="p-2 rounded-lg hover:bg-gray-700/50 border border-transparent 
+                            text-gray-300 transition-all duration-200"
+                      title="Zoom In (+)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
+            <button @click="resetZoom" 
+                    class="px-3 py-1 text-sm bg-gray-700/50 hover:bg-gray-600/50 rounded-lg 
+                          border border-gray-600/50 text-gray-300 transition-all duration-200"
+                    title="Reset Zoom (1:1)">
+              1:1
+            </button>
+          </div>
+
+        </div>
+        
+        
+        
+        
+      </div>
+    </div>
+    
+    <!-- Right Side Toolbar 🕯️ -->
+    <div v-if="AdditionalFeutures" class="absolute  top-6 right-4 z-30">
+      <div class="flex flex-col gap-3">
+        <!-- Grid & Snap Toggle -->
+        <div class="flex flex-col gap-2 p-3 bg-gray-800/80 backdrop-blur-xl rounded-xl 
+                    border border-gray-700/50 shadow-lg">
+          <button @click="toggleGrid" 
+                  :class="[
+                    'flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200',
+                    showGrid 
+                      ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/30 text-blue-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Toggle Grid">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            <span class="text-sm">Grid</span>
+          </button>
+          
+          <button @click="toggleSnap" 
+                  :class="[
+                    'flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200',
+                    snapToGrid 
+                      ? 'bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 text-emerald-300'
+                      : 'hover:bg-gray-700/50 border border-transparent text-gray-300'
+                  ]"
+                  title="Toggle Snap to Grid">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            <span class="text-sm">Snap</span>
+          </button>
+        </div>
+        
+        <!-- Export/Import -->
+        <div class="flex flex-col gap-2 p-3 bg-gray-800/80 backdrop-blur-xl rounded-xl 
+                    border border-gray-700/50 shadow-lg">
+          <button @click="exportJSON" 
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700/50 
+                         border border-transparent text-gray-300 transition-all duration-200"
+                  title="Export as JSON">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span class="text-sm">Export</span>
+          </button>
+          
+          <button @click="exportImage" 
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700/50 
+                         border border-transparent text-gray-300 transition-all duration-200"
+                  title="Export as Image">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-sm">Image</span>
+          </button>
+          
+          <button @click="importJSON" 
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700/50 
+                         border border-transparent text-gray-300 transition-all duration-200"
+                  title="Import JSON">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+            </svg>
+            <span class="text-sm">Import</span>
+          </button>
+        </div>
+        
+        <!-- User Name -->
+        <div class="p-3 bg-gray-800/80 backdrop-blur-xl rounded-xl border border-gray-700/50 shadow-lg">
+          <button @click="showNameChange = true" 
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-500/20 
+                         border border-transparent hover:border-blue-500/30 text-gray-300 
+                         transition-all duration-200 w-full">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                 :style="{ backgroundColor: props.userColor }">
+              {{ userInitial(props.userName) }}
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-sm font-medium truncate max-w-[120px]">{{ props.userName || 'User' }}</p>
+              <p class="text-xs text-gray-400">Click to change</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Bar 🕯️ -->
+    <div v-if="AdditionalFeutures" class="fixed bottom-4  left-1/2 transform -translate-x-1/2 z-30">
+      <div class="flex items-center gap-2 p-3 bg-gray-800/80 backdrop-blur-xl rounded-xl 
+                  border border-gray-700/50 shadow-lg">
+        <!-- History Timeline -->
+        <button @click="toggleHistory" 
+                class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-700/50 
+                       border border-transparent text-gray-300 transition-all duration-200"
+                :class="{ 'bg-purple-500/20 border-purple-500/30 text-purple-300': showHistory }">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        </button>
-        <button @click="selectTool('pencil')" :class="{ active: activeTool === 'pencil' }" title="Pencil">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
+          <span class="hidden sm:inline">History</span>
         </button>
         
-        <button @click="selectTool('rectangle')" :class="{ active: activeTool === 'rectangle' }" title="Rectangle">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
-          </svg>
+        <!-- Stickers -->
+        <button @click="toggleStickers" 
+                class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-700/50 
+                       border border-transparent text-gray-300 transition-all duration-200"
+                :class="{ 'bg-pink-500/20 border-pink-500/30 text-pink-300': showStickers }">
+          <span class="text-lg">😊</span>
+          <span class="hidden sm:inline">Stickers</span>
         </button>
-        <button @click="selectTool('circle')" :class="{ active: activeTool === 'circle' }" title="Circle">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
-        <button @click="selectTool('text')" :class="{ active: activeTool === 'text' }" title="Text">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-        </button>
-        <button @click="selectTool('eraser')" :class="{ active: activeTool === 'eraser' }" title="Eraser">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-      
-      <div class="toolbar-section">
-        <div class="color-picker">
-          <button
-            v-for="color in colors"
-            :key="color"
-            @click="setColor(color)"
-            :class="{ active: strokeColor === color }"
-            :style="{ backgroundColor: color }"
-            :title="color"
-          />
-        </div>
-        <input type="color" v-model="strokeColor" @input="setColor(strokeColor)" />
-      </div>
-      
-      <div class="toolbar-section">
-        <label>Size:</label>
-        <input type="range" min="1" max="50" v-model="strokeWidth" @input="setStrokeWidth" />
-        <span>{{ strokeWidth }}px</span>
-      </div>
-      
-      <div class="toolbar-section">
-        <button @click="toggleFill" :class="{ active: fillEnabled }" title="Fill">
-          Fill
-        </button>
-        <input v-if="fillEnabled" type="color" v-model="fillColor" @input="setFillColor" />
-      </div>
-      
-      <div class="toolbar-section">
-        <button @click="undo" :disabled="!canUndo" title="Undo">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-          </svg>
-        </button>
-        <button @click="redo" :disabled="!canRedo" title="Redo">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-        </button>
-        <button @click="clearCanvas" title="Clear">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-      
-      <div class="toolbar-section">
-        <button @click="toggleGrid" :class="{ active: showGrid }" title="Grid">
-          Grid
-        </button>
-        <button @click="toggleSnap" :class="{ active: snapToGrid }" title="Snap to Grid">
-          Snap
-        </button>
-        <button @click="zoomIn" title="Zoom In">+</button>
-        <button @click="zoomOut" title="Zoom Out">-</button>
-        <button @click="resetZoom" title="Reset Zoom">1:1</button>
-        <span class="zoom-level">{{ Math.round(zoom * 100) }}%</span>
-      </div>
-      
-      <div class="toolbar-section">
-        <button @click="exportJSON" title="Export JSON">
-          Export
-        </button>
-        <button @click="exportImage" title="Export Image">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </button>
-        <button @click="importJSON" title="Import JSON">
-          Import
-        </button>
-      </div>
-
-      <div class="toolbar-section">
-        <label class="right-click-toggle">
-          <input type="checkbox" v-model="rightClickEnabled" />
-          Right-click toggle
+        
+        <!-- Right Click Toggle -->
+        <label class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-700/50 
+                      border border-transparent text-gray-300 transition-all duration-200 cursor-pointer">
+          <input type="checkbox" v-model="rightClickEnabled" 
+                 class="w-4 h-4 accent-blue-500 rounded" />
+          <span class="text-sm">Right-click</span>
         </label>
+        
+        <!-- Fill Color Picker (if enabled) -->
+        <div v-if="fillEnabled" class="flex items-center gap-2">
+          <span class="text-sm text-gray-400">Fill:</span>
+          <input type="color" v-model="fillColor" @input="setFillColor" 
+                 class="w-6 h-6 rounded cursor-pointer border border-gray-600" />
+        </div>
       </div>
     </div>
     
     <!-- Canvas Container -->
-    <div  class="canvas-container" ref="canvasContainer">
-      <canvas  ref="canvas"></canvas>
+    <div class="canvas-container absolute inset-0 z-10" ref="canvasContainer">
+      <canvas ref="canvas" class="absolute inset-0"></canvas>
       
       <!-- Live Cursors -->
-      <div class="cursors-overlay">
+      <div class="cursors-overlay absolute inset-0 pointer-events-none z-20">
         <div
           v-for="(cursor, userId) in liveCursors"
           :key="userId"
-          class="cursor"
+          class="cursor absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100"
           :style="{
             left: cursor.x + 'px',
             top: cursor.y + 'px',
-            borderColor: cursor.color
           }"
-          :title="cursor.name"
         >
-          <div class="cursor-dot" :style="{ backgroundColor: cursor.color }"></div>
-          <div class="cursor-name">{{ cursor.name }}</div>
+          <div class="relative">
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 
+                        text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap 
+                        border border-gray-700/50 backdrop-blur-sm">
+              {{ cursor.name }}
+            </div>
+            <div class="w-6 h-6 rounded-full border-2"
+                 :style="{ borderColor: cursor.color }">
+              <div class="w-3 h-3 rounded-full m-1.5" 
+                   :style="{ backgroundColor: cursor.color }"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     
     <!-- Text Input Modal -->
-    <div v-if="textInputActive" class="text-input-modal">
-      <div class="modal-content">
-        <h3>Add Text</h3>
+    <div v-if="textInputActive" class="fixed inset-0  bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl shadow-2xl 
+                  border border-gray-700/50 max-w-md w-full">
+        <h3 class="text-xl font-bold text-white mb-4">Add Text</h3>
         <input
           v-model="textInput"
           @keyup.enter="addText"
           @keyup.esc="cancelText"
-          placeholder="Enter text..."
+          placeholder="Enter text here..."
           ref="textInputField"
           autofocus
+          class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl 
+                 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 
+                 focus:outline-none text-white placeholder-gray-400 mb-4"
         />
-        <div class="modal-actions">
-          <button @click="addText">Add</button>
-          <button @click="cancelText">Cancel</button>
+        <div class="flex justify-end gap-3">
+          <button @click="cancelText" 
+                  class="px-5 py-2 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 
+                         rounded-xl font-medium transition-all duration-200">
+            Cancel
+          </button>
+          <button @click="addText" 
+                  class="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 
+                         rounded-xl font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30
+                         border border-blue-500/30 transition-all duration-200">
+            Add Text
+          </button>
         </div>
       </div>
     </div>
     
-    <!-- Name Change Button -->
-    <div class="name-change-btn">
-      <button @click="showNameChange = true" title="Change your name">
-        {{ props.userName || 'User' }}
-        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
-      </button>
-    </div>
-
     <!-- Name Change Modal -->
-    <div v-if="showNameChange" class="name-change-modal">
-      <div class="modal-content">
-        <h3>Change Your Name</h3>
+    <div v-if="showNameChange" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl shadow-2xl 
+                  border border-gray-700/50 max-w-md w-full">
+        <h3 class="text-xl font-bold text-white mb-4">Change Your Name</h3>
         <input
           v-model="newUserName"
           @keyup.enter="updateUserName"
-          placeholder="Enter new name"
-          class="name-input"
+          placeholder="Enter your display name..."
+          class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl 
+                 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 
+                 focus:outline-none text-white placeholder-gray-400 mb-4"
           autofocus
         />
-        <div class="modal-actions">
-          <button @click="updateUserName" class="btn-primary">Update</button>
-          <button @click="showNameChange = false" class="btn-secondary">Cancel</button>
+        <div class="flex justify-end gap-3">
+          <button @click="showNameChange = false" 
+                  class="px-5 py-2 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 
+                         rounded-xl font-medium transition-all duration-200">
+            Cancel
+          </button>
+          <button @click="updateUserName" 
+                  class="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 
+                         rounded-xl font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30
+                         border border-blue-500/30 transition-all duration-200">
+            Update Name
+          </button>
         </div>
       </div>
     </div>
     
     <!-- Stickers Panel -->
-    <div v-if="showStickers" class="stickers-panel">
-      <h3>Stickers & Emojis</h3>
-      <div class="stickers-grid">
+    <div v-if="showStickers" 
+         class="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-40
+                bg-gray-800/95 backdrop-blur-xl rounded-2xl border border-gray-700/50 
+                shadow-2xl p-4 max-w-md w-full mx-4">
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <span class="text-lg">🎨</span> Stickers & Emojis
+      </h3>
+      <div class="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-60 overflow-y-auto p-2">
         <button
           v-for="sticker in stickers"
           :key="sticker.emoji"
           @click="addSticker(sticker)"
-          class="sticker-btn"
+          class="sticker-btn text-2xl hover:scale-125 transition-transform duration-200 
+                 hover:bg-gray-700/50 p-2 rounded-lg"
           :title="sticker.name"
         >
           {{ sticker.emoji }}
@@ -203,19 +499,50 @@
     </div>
     
     <!-- History Timeline -->
-    <div v-if="showHistory" class="history-timeline">
-      <h3>History</h3>
-      <div class="history-list">
+    <div v-if="showHistory" 
+         class="absolute bottom-20 right-4 z-40 bg-gray-800/95 backdrop-blur-xl 
+                rounded-2xl border border-gray-700/50 shadow-2xl p-4 w-80">
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        History Timeline
+      </h3>
+      <div class="space-y-2 max-h-60 overflow-y-auto">
         <div
           v-for="(action, index) in history"
           :key="index"
           @click="restoreHistory(index)"
-          :class="{ active: historyIndex === index }"
-          class="history-item"
+          :class="[
+            'history-item p-3 rounded-lg border transition-all duration-200 cursor-pointer',
+            historyIndex === index 
+              ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-300'
+              : 'hover:bg-gray-700/50 border-gray-600/30 text-gray-300'
+          ]"
         >
-          {{ action.type }} - {{ new Date(action.timestamp).toLocaleTimeString() }}
+          <div class="flex items-center justify-between">
+            <span class="font-medium capitalize">{{ action.type }}</span>
+            <span class="text-xs text-gray-400">
+              {{ new Date(action.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
+            </span>
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            {{ action.user || 'Unknown' }}
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Mobile Floating Action Button -->
+    <div class=" fixed bottom-6 group right-6 z-40">
+      <button @click="showAdditionalFeutures"
+              class="w-12 h-12 rounded-full cursor-pointer bg-gradient-to-r from-blue-600 to-blue-700 
+                      shadow-lg shadow-blue-500/30 border border-blue-500/30 flex items-center justify-center">
+        <svg class="w-6 h-6 group-hover:animate-spin text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      </button>
     </div>
   </div>
 </template>
@@ -269,6 +596,7 @@ const showNameChange = ref(false)
 const newUserName = ref('')
 const lastCursorUpdate = ref(0)
 const lastX = ref(0)
+const AdditionalFeutures = ref(false)
 const lastY = ref(0)
 // Constants
 const colors = [
@@ -297,6 +625,17 @@ const canUndo = computed(() => historyIndex.value > 0)
 const canRedo = computed(() => historyIndex.value < history.value.length - 1)
 
 // ========== MISSING FUNCTIONS DEFINED BELOW ==========
+const userInitial = (name) => {
+  return name ? name.charAt(0).toUpperCase() : 'U'
+}
+
+const toggleHistory = () => {
+  showHistory.value = !showHistory.value
+}
+
+const toggleStickers = () => {
+  showStickers.value = !showStickers.value
+}
 
 // Initialize Fabric.js Canvas
 const initCanvas = () => {
@@ -327,6 +666,11 @@ const initCanvas = () => {
   
   // Auto-save
   startAutoSave()
+}
+
+const showAdditionalFeutures =() =>{
+  // console.log('clicked')
+  AdditionalFeutures.value = !AdditionalFeutures.value
 }
 
 // History Management Functions
@@ -461,48 +805,7 @@ const setupCanvasEvents = () => {
     }
   })
   
-  // Mouse move for cursor tracking
   
-    // fabricCanvas.on('mouse:move', (e) => {
-    //     console.log('🖱️ Mouse move detected')
-    //     console.log('reached')
-    //     if (!props.socket) {
-    //         console.log('❌ No socket available')
-    //         return
-    //     }
-        
-    //     console.log('🖱️ WebSocket state:', props.socket.readyState, 'OPEN=', WebSocket.OPEN)
-        
-    //     if (props.socket.readyState === WebSocket.OPEN) {
-    //         const pointer = fabricCanvas.getPointer(e.e)
-    //         console.log('🖱️ Pointer position:', pointer.x, pointer.y)
-            
-    //         // Fix throttle logic
-    //         const now = Date.now()
-    //         const lastUpdate = lastCursorUpdate.value || 0
-            
-    //         if (now - lastUpdate > 50) { // Send every 50ms max
-    //         console.log('🖱️ Sending cursor update')
-            
-    //         const cursorData = {
-    //             type: 'cursor_move',
-    //             position: { x: pointer.x, y: pointer.y },
-    //             user_id: props.userId,
-    //             user_name: props.userName,
-    //             user_color: props.userColor
-    //         }
-            
-    //         console.log('📤 Sending cursor data:', cursorData)
-    //         props.socket.send(JSON.stringify(cursorData))
-    //         lastCursorUpdate.value = now
-    //         } else {
-    //         console.log('🖱️ Throttled cursor update (too soon)')
-    //         }
-    //     } else {
-    //         console.log('❌ WebSocket not open, state:', props.socket.readyState)
-    //     }
-    // })
-
     
   
   // Right-click handling
@@ -555,6 +858,71 @@ const setupCanvasEvents = () => {
 
 
 // Drawing Tools
+// const selectTool = (tool) => {
+//   activeTool.value = tool
+  
+//   if (!fabricCanvas) return
+  
+//   // IMPORTANT: Always disable drawing mode first
+//   fabricCanvas.isDrawingMode = false
+//   fabricCanvas.selection = true
+//   fabricCanvas.defaultCursor = 'default'
+//   fabricCanvas.skipTargetFind = false
+  
+//   // Clean up ALL existing event listeners
+//   fabricCanvas.off('mouse:down')
+//   fabricCanvas.off('mouse:move')
+//   fabricCanvas.off('mouse:up')
+
+//    // Clean up container listeners for drawing tools
+//     if (canvasContainer.value && canvasContainer.value._drawingHandlers) {
+//         canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
+//         canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
+//         canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
+//         delete canvasContainer.value._drawingHandlers
+//     }
+//   // Reset any drawing state
+//   isDrawing.value = false
+
+//     // Add container event listeners for drawing tools
+//   let containerMouseDownHandler, containerMouseMoveHandler, containerMouseUpHandler
+  
+  
+  
+//   switch (tool) {
+//     case 'select':
+//       fabricCanvas.selection = true
+//       fabricCanvas.defaultCursor = 'default'
+//       break
+      
+//     case 'pencil':
+//       fabricCanvas.isDrawingMode = true
+//       const pencilBrush = new fabric.PencilBrush(fabricCanvas)
+//       pencilBrush.color = strokeColor.value
+//       pencilBrush.width = strokeWidth.value
+//       fabricCanvas.freeDrawingBrush = pencilBrush
+//       fabricCanvas.defaultCursor = 'crosshair'
+//       break
+//     case 'text':
+//       fabricCanvas.defaultCursor = 'text'
+//       fabricCanvas.selection = false  // Disable selection for text tool
+      
+//       // Setup text tool click handler
+//       setupTextTool()
+//       break
+//     case 'line':
+//     case 'rectangle':
+//     case 'circle':
+//       // These will use container events for better performance
+//       setupContainerDrawingTool(tool)
+//       break
+      
+//     case 'eraser':
+//       setupEraserTool()
+//       break
+//   }
+// }
+
 const selectTool = (tool) => {
   activeTool.value = tool
   
@@ -571,20 +939,26 @@ const selectTool = (tool) => {
   fabricCanvas.off('mouse:move')
   fabricCanvas.off('mouse:up')
 
-   // Clean up container listeners for drawing tools
-    if (canvasContainer.value && canvasContainer.value._drawingHandlers) {
-        canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
-        canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
-        canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
-        delete canvasContainer.value._drawingHandlers
-    }
+  // Clean up container listeners for drawing tools
+  if (canvasContainer.value && canvasContainer.value._drawingHandlers) {
+    // Mouse events
+    canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
+    canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
+    canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
+    
+    // Touch events
+    canvasContainer.value.removeEventListener('touchstart', canvasContainer.value._drawingHandlers.touchstart)
+    canvasContainer.value.removeEventListener('touchmove', canvasContainer.value._drawingHandlers.touchmove)
+    canvasContainer.value.removeEventListener('touchend', canvasContainer.value._drawingHandlers.touchend)
+    
+    delete canvasContainer.value._drawingHandlers
+  }
+  
   // Reset any drawing state
   isDrawing.value = false
-
-    // Add container event listeners for drawing tools
+  
+  // Add container event listeners for drawing tools
   let containerMouseDownHandler, containerMouseMoveHandler, containerMouseUpHandler
-  
-  
   
   switch (tool) {
     case 'select':
@@ -600,27 +974,13 @@ const selectTool = (tool) => {
       fabricCanvas.freeDrawingBrush = pencilBrush
       fabricCanvas.defaultCursor = 'crosshair'
       break
+    case 'text':
+      fabricCanvas.defaultCursor = 'text'
+      fabricCanvas.selection = false  // Disable selection for text tool
       
-    // case 'line':
-    //   setupLineTool()
-    //   break
-      
-    // case 'rectangle':
-    //   setupRectangleTool()
-    //   break
-      
-    // case 'circle':
-    //   setupCircleTool()
-    //   break
-      
-    // case 'text':
-    //   fabricCanvas.defaultCursor = 'text'
-    //   fabricCanvas.selection = false  // Disable selection for text tool
-      
-    //   // Setup text tool click handler
-    //   setupTextTool()
-    //   break
-
+      // Setup text tool click handler
+      setupTextTool()
+      break
     case 'line':
     case 'rectangle':
     case 'circle':
@@ -634,6 +994,188 @@ const selectTool = (tool) => {
   }
 }
 
+// const setupTextTool = () => {
+//   if (!fabricCanvas) return
+  
+//   // Clear any existing mouse down handlers
+//   fabricCanvas.off('mouse:down')
+  
+//   // Add text tool click handler
+//   fabricCanvas.on('mouse:down', (e) => {
+//     // Only handle left-click
+//     if (e.e.button !== 0 || isRightClickMode.value) return
+    
+//     const pointer = fabricCanvas.getPointer(e.e)
+//     showTextInput(pointer.x, pointer.y)
+//   })
+  
+//   // Optional: Show text cursor more clearly
+//   fabricCanvas.hoverCursor = 'text'
+// }
+
+// const setupContainerDrawingTool = (tool) => {
+//   if (!fabricCanvas || !canvasContainer.value) return
+  
+//   fabricCanvas.selection = false
+//   fabricCanvas.defaultCursor = 'crosshair'
+  
+//   let shape = null
+//   let startPoint = null
+//   let isDrawing = false
+  
+//   const handleContainerMouseDown = (e) => {
+//     if (e.button !== 0 || isRightClickMode.value) return
+    
+//     e.preventDefault()
+//     const rect = canvasContainer.value.getBoundingClientRect()
+//     const x = e.clientX - rect.left
+//     const y = e.clientY - rect.top
+    
+//     // Adjust for zoom
+//     const adjustedX = x / zoom.value
+//     const adjustedY = y / zoom.value
+    
+//     startPoint = { x: adjustedX, y: adjustedY }
+//     isDrawing = true
+    
+//     // Create shape based on tool
+//     if (tool === 'rectangle') {
+//       shape = new fabric.Rect({
+//         left: adjustedX,
+//         top: adjustedY,
+//         width: 0,
+//         height: 0,
+//         stroke: strokeColor.value,
+//         strokeWidth: strokeWidth.value,
+//         fill: fillEnabled.value ? fillColor.value : 'transparent',
+//         strokeUniform: true,
+//         selectable: true,
+//         _remote: false,
+//         _isDrawing: true,
+//         id: `rect_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+//       })
+//     } else if (tool === 'circle') {
+//       shape = new fabric.Circle({
+//         left: adjustedX,
+//         top: adjustedY,
+//         radius: 0,
+//         stroke: strokeColor.value,
+//         strokeWidth: strokeWidth.value,
+//         fill: fillEnabled.value ? fillColor.value : 'transparent',
+//         strokeUniform: true,
+//         selectable: true,
+//         _remote: false,
+//         _isDrawing: true,
+//         id: `circle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+//       })
+//     }
+    
+//     if (shape) {
+//       fabricCanvas.add(shape)
+//       fabricCanvas.setActiveObject(shape)
+//     }
+//   }
+  
+//   const handleContainerMouseMove = (e) => {
+//     if (!isDrawing || !shape) return
+    
+//     e.preventDefault()
+//     const rect = canvasContainer.value.getBoundingClientRect()
+//     const x = e.clientX - rect.left
+//     const y = e.clientY - rect.top
+    
+//     // Adjust for zoom
+//     const adjustedX = x / zoom.value
+//     const adjustedY = y / zoom.value
+    
+//     if (tool === 'rectangle') {
+//       const width = adjustedX - startPoint.x
+//       const height = adjustedY - startPoint.y
+      
+//       shape.set({
+//         width: Math.abs(width),
+//         height: Math.abs(height),
+//         left: width > 0 ? startPoint.x : adjustedX,
+//         top: height > 0 ? startPoint.y : adjustedY
+//       })
+//     } else if (tool === 'circle') {
+//       const radius = Math.sqrt(
+//         Math.pow(adjustedX - startPoint.x, 2) +
+//         Math.pow(adjustedY - startPoint.y, 2)
+//       )
+      
+//       shape.set({
+//         radius: radius,
+//         left: startPoint.x - radius,
+//         top: startPoint.y - radius
+//       })
+//     }
+    
+//     fabricCanvas.renderAll()
+//   }
+  
+//   const handleContainerMouseUp = (e) => {
+//     if (!isDrawing || !shape) return
+    
+//     isDrawing = false
+//     shape._isDrawing = false
+    
+//     // Validate and send shape
+//     if (shape.radius >= 5 || (shape.width >= 5 && shape.height >= 5)) {
+//       console.log(`${tool} completed, sending to server:`)
+//       saveToHistory('add', shape)
+//       sendObjectToServer(shape, 'add')
+//     } else {
+//       fabricCanvas.remove(shape)
+//       notificationStore.info('Shape too small', 'Please draw a larger shape')
+//     }
+    
+//     shape = null
+//     startPoint = null
+    
+//     // Auto-switch back to select tool
+//     setTimeout(() => {
+//       if (activeTool.value === tool) {
+//         selectTool('select')
+//       }
+//     }, 50)
+//   }
+  
+//   // Add event listeners to container
+//   canvasContainer.value.addEventListener('mousedown', handleContainerMouseDown)
+//   canvasContainer.value.addEventListener('mousemove', handleContainerMouseMove)
+//   canvasContainer.value.addEventListener('mouseup', handleContainerMouseUp)
+  
+//   // Store handlers for cleanup
+//   canvasContainer.value._drawingHandlers = {
+//     mousedown: handleContainerMouseDown,
+//     mousemove: handleContainerMouseMove,
+//     mouseup: handleContainerMouseUp
+//   }
+// }
+
+const setupTextTool = () => {
+  if (!fabricCanvas) return
+  
+  // Clear any existing mouse down handlers
+  fabricCanvas.off('mouse:down')
+  
+  // Handle both mouse and touch for text tool
+  const handlePointerDown = (e) => {
+    // Only handle left-click for mouse
+    if (e.e && e.e.button !== 0 && e.e.button !== undefined) return
+    
+    const pointer = fabricCanvas.getPointer(e.e)
+    showTextInput(pointer.x, pointer.y)
+  }
+  
+  fabricCanvas.on('mouse:down', handlePointerDown)
+  fabricCanvas.on('touch:start', handlePointerDown)
+  
+  // Optional: Show text cursor more clearly
+  fabricCanvas.hoverCursor = 'text'
+}
+
 const setupContainerDrawingTool = (tool) => {
   if (!fabricCanvas || !canvasContainer.value) return
   
@@ -644,13 +1186,28 @@ const setupContainerDrawingTool = (tool) => {
   let startPoint = null
   let isDrawing = false
   
-  const handleContainerMouseDown = (e) => {
-    if (e.button !== 0 || isRightClickMode.value) return
-    
+  // Handle both mouse and touch events
+  const handlePointerDown = (e) => {
+    // Prevent default to avoid scrolling on touch devices
     e.preventDefault()
+    
+    // Get pointer coordinates (works for both mouse and touch)
+    let clientX, clientY
+    
+    if (e.type.includes('touch')) {
+      const touch = e.touches[0]
+      clientX = touch.clientX
+      clientY = touch.clientY
+    } else {
+      // Only handle left-click for mouse
+      if (e.button !== 0 || isRightClickMode.value) return
+      clientX = e.clientX
+      clientY = e.clientY
+    }
+    
     const rect = canvasContainer.value.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     
     // Adjust for zoom
     const adjustedX = x / zoom.value
@@ -697,13 +1254,26 @@ const setupContainerDrawingTool = (tool) => {
     }
   }
   
-  const handleContainerMouseMove = (e) => {
+  const handlePointerMove = (e) => {
     if (!isDrawing || !shape) return
     
     e.preventDefault()
+    
+    // Get pointer coordinates
+    let clientX, clientY
+    
+    if (e.type.includes('touch')) {
+      const touch = e.touches[0]
+      clientX = touch.clientX
+      clientY = touch.clientY
+    } else {
+      clientX = e.clientX
+      clientY = e.clientY
+    }
+    
     const rect = canvasContainer.value.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     
     // Adjust for zoom
     const adjustedX = x / zoom.value
@@ -735,9 +1305,10 @@ const setupContainerDrawingTool = (tool) => {
     fabricCanvas.renderAll()
   }
   
-  const handleContainerMouseUp = (e) => {
+  const handlePointerUp = (e) => {
     if (!isDrawing || !shape) return
     
+    e.preventDefault()
     isDrawing = false
     shape._isDrawing = false
     
@@ -762,276 +1333,60 @@ const setupContainerDrawingTool = (tool) => {
     }, 50)
   }
   
-  // Add event listeners to container
-  canvasContainer.value.addEventListener('mousedown', handleContainerMouseDown)
-  canvasContainer.value.addEventListener('mousemove', handleContainerMouseMove)
-  canvasContainer.value.addEventListener('mouseup', handleContainerMouseUp)
+  // Add event listeners for both mouse and touch
+  // Mouse events
+  canvasContainer.value.addEventListener('mousedown', handlePointerDown)
+  canvasContainer.value.addEventListener('mousemove', handlePointerMove)
+  canvasContainer.value.addEventListener('mouseup', handlePointerUp)
+  
+  // Touch events (for mobile/touch devices)
+  canvasContainer.value.addEventListener('touchstart', handlePointerDown, { passive: false })
+  canvasContainer.value.addEventListener('touchmove', handlePointerMove, { passive: false })
+  canvasContainer.value.addEventListener('touchend', handlePointerUp, { passive: false })
   
   // Store handlers for cleanup
   canvasContainer.value._drawingHandlers = {
-    mousedown: handleContainerMouseDown,
-    mousemove: handleContainerMouseMove,
-    mouseup: handleContainerMouseUp
+    mousedown: handlePointerDown,
+    mousemove: handlePointerMove,
+    mouseup: handlePointerUp,
+    touchstart: handlePointerDown,
+    touchmove: handlePointerMove,
+    touchend: handlePointerUp
   }
 }
 
-const setupTextTool = () => {
-  if (!fabricCanvas) return
-  
-  // Clear any existing mouse down handlers
-  fabricCanvas.off('mouse:down')
-  
-  // Add text tool click handler
-  fabricCanvas.on('mouse:down', (e) => {
-    // Only handle left-click
-    if (e.e.button !== 0 || isRightClickMode.value) return
-    
-    const pointer = fabricCanvas.getPointer(e.e)
-    showTextInput(pointer.x, pointer.y)
-  })
-  
-  // Optional: Show text cursor more clearly
-  fabricCanvas.hoverCursor = 'text'
-}
 
-const setupLineTool = () => {
-  if (!fabricCanvas) return
-  
-  let line = null
-  let startPoint = null
-  
-  const onMouseDown = (e) => {
-    if (isRightClickMode.value || e.e.button === 2 || e.e.button !== 0) return
-    
-    const pointer = fabricCanvas.getPointer(e.e)
-    startPoint = pointer
-    
-    line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
-      stroke: strokeColor.value,
-      strokeWidth: strokeWidth.value,
-      strokeUniform: true,
-      selectable: true,
-      _remote: false,
-      _isDrawing: true
-    })
-    
-    fabricCanvas.add(line)
-    fabricCanvas.setActiveObject(line)
-  }
-  
-  const onMouseMove = (e) => {
-    console.log('on the double')
-    if (!line || !line._isDrawing) return
-    
-    const pointer = fabricCanvas.getPointer(e.e)
-    line.set({ x2: pointer.x, y2: pointer.y })
-    fabricCanvas.renderAll()
-  }
-  
-  const onMouseUp = () => {
-    if (rect && rect._isDrawing) {
-        // Ensure minimum dimensions before sending
-        if (rect.width < 5 || rect.height < 5) {
-        fabricCanvas.remove(rect)
-        notificationStore.info('Shape too small', 'Please draw a larger shape')
-        } else {
-        rect._isDrawing = false
-        console.log('Rectangle drawn:', { width: rect.width, height: rect.height })
-        }
-        
-        rect = null
-        startPoint = null
-        
-        setTimeout(() => {
-        if (activeTool.value === 'rectangle') {
-            selectTool('select')
-        }
-        }, 50)
-    }
-    }
-  
-  // Clean up and set new listeners
-  fabricCanvas.off('mouse:down')
-  fabricCanvas.off('mouse:move')
-  fabricCanvas.off('mouse:up')
-  
-  fabricCanvas.on('mouse:down', onMouseDown)
-  fabricCanvas.on('mouse:move', onMouseMove)
-  fabricCanvas.on('mouse:up', onMouseUp)
-}
 
-// Update rectangle tool similarly
-// Replace the setupRectangleTool function with this fixed version
-const setupRectangleTool = () => {
-  if (!fabricCanvas) return
+// const setupEraserTool = () => {
+//   if (!fabricCanvas) return
   
-  let rect = null
-  let startPoint = null
+//   fabricCanvas.isDrawingMode = false
+//   fabricCanvas.selection = false
+//   fabricCanvas.defaultCursor = 'not-allowed'
   
-  const onMouseDown = (e) => {
-    if (isRightClickMode.value || e.e.button === 2 || e.e.button !== 0) return
-    
-    const pointer = fabricCanvas.getPointer(e.e)
-    startPoint = pointer
-    
-    rect = new fabric.Rect({
-      left: pointer.x,
-      top: pointer.y,
-      width: 0,
-      height: 0,
-      stroke: strokeColor.value,
-      strokeWidth: strokeWidth.value,
-      fill: fillEnabled.value ? fillColor.value : 'transparent',
-      strokeUniform: true,
-      selectable: true,
-      _remote: false,
-      _isDrawing: true,
-      id: `rect_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` // Add unique ID
-    })
-    
-    fabricCanvas.add(rect)
-    fabricCanvas.setActiveObject(rect)
-  }
+//   let isErasing = false
   
-  const onMouseMove = (e) => {
-    console.log('on the double 2')
-    if (!rect || !rect._isDrawing) return
-    
-    const pointer = fabricCanvas.getPointer(e.e)
-    const width = pointer.x - startPoint.x
-    const height = pointer.y - startPoint.y
-    
-    rect.set({
-      width: Math.abs(width),
-      height: Math.abs(height),
-      left: width > 0 ? startPoint.x : pointer.x,
-      top: height > 0 ? startPoint.y : pointer.y
-    })
-    
-    fabricCanvas.renderAll()
-  }
+//   fabricCanvas.off('mouse:down')
+//   fabricCanvas.off('mouse:move')
+//   fabricCanvas.off('mouse:up')
   
-  const onMouseUp = () => {
-    if (rect && rect._isDrawing) {
-      rect._isDrawing = false
-      
-      // CRITICAL: Ensure minimum dimensions and send to server
-      if (rect.width >= 5 && rect.height >= 5 && !rect._alreadySent) {
-        rect._alreadySent = true
-        console.log('Rectangle completed, sending to server:')
-        saveToHistory('add', rect)
-        sendObjectToServer(rect, 'add')
-        } else {
-        fabricCanvas.remove(rect)
-        notificationStore.info('Shape too small', 'Please draw a larger shape')
-      }
-      
-      rect = null
-      startPoint = null
-      
-      // Auto-switch back to select tool
-      setTimeout(() => {
-        if (activeTool.value === 'rectangle') {
-          selectTool('select')
-        }
-      }, 50)
-    }
-  }
-  
-  fabricCanvas.off('mouse:down')
-  fabricCanvas.off('mouse:move')
-  fabricCanvas.off('mouse:up')
-  
-  fabricCanvas.on('mouse:down', onMouseDown)
-  fabricCanvas.on('mouse:move', onMouseMove)
-  fabricCanvas.on('mouse:up', onMouseUp)
-}
-
-// Replace the setupCircleTool function with this fixed version
-const setupCircleTool = () => {
-  if (!fabricCanvas) return
-  
-  let circle = null
-  let startPoint = null
-  
-  const onMouseDown = (e) => {
-    if (isRightClickMode.value || e.e.button === 2 || e.e.button !== 0) return
+//   fabricCanvas.on('mouse:down', (e) => {
+//     if (isRightClickMode.value || e.e.button === 2) return
     
-    const pointer = fabricCanvas.getPointer(e.e)
-    startPoint = pointer
-    
-    circle = new fabric.Circle({
-      left: pointer.x,
-      top: pointer.y,
-      radius: 0,
-      stroke: strokeColor.value,
-      strokeWidth: strokeWidth.value,
-      fill: fillEnabled.value ? fillColor.value : 'transparent',
-      strokeUniform: true,
-      selectable: true,
-      _remote: false,
-      _isDrawing: true,
-      id: `circle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` // Add unique ID
-    })
-    
-    fabricCanvas.add(circle)
-    fabricCanvas.setActiveObject(circle)
-  }
+//     isErasing = true
+//     eraseAtPoint(e)
+//   })
   
-  const onMouseMove = (e) => {
-    console.log('on the double 3')
-    if (!circle || !circle._isDrawing) return
-    
-    const pointer = fabricCanvas.getPointer(e.e)
-    const radius = Math.sqrt(
-      Math.pow(pointer.x - startPoint.x, 2) +
-      Math.pow(pointer.y - startPoint.y, 2)
-    )
-    
-    circle.set({
-      radius: radius,
-      left: startPoint.x - radius,
-      top: startPoint.y - radius
-    })
-    
-    fabricCanvas.renderAll()
-  }
+//   fabricCanvas.on('mouse:move', (e) => {
+//     console.log('on the double 4')
+//     if (!isErasing) return
+//     eraseAtPoint(e)
+//   })
   
-  const onMouseUp = () => {
-    if (circle && circle._isDrawing) {
-      circle._isDrawing = false
-      
-      // CRITICAL: Ensure minimum radius and send to server
-      if (circle.radius >= 5) {
-        console.log('Circle completed, sending to server:', circle)
-        saveToHistory('add', circle)
-        sendObjectToServer(circle, 'add')
-      } else {
-        fabricCanvas.remove(circle)
-        notificationStore.info('Shape too small', 'Please draw a larger shape')
-      }
-      
-      circle = null
-      startPoint = null
-      
-      // Auto-switch back to select tool
-      setTimeout(() => {
-        if (activeTool.value === 'circle') {
-          selectTool('select')
-        }
-      }, 50)
-    }
-  }
-  
-  fabricCanvas.off('mouse:down')
-  fabricCanvas.off('mouse:move')
-  fabricCanvas.off('mouse:up')
-  
-  fabricCanvas.on('mouse:down', onMouseDown)
-  fabricCanvas.on('mouse:move', onMouseMove)
-  fabricCanvas.on('mouse:up', onMouseUp)
-}
-
+//   fabricCanvas.on('mouse:up', () => {
+//     isErasing = false
+//   })
+// }
 
 const setupEraserTool = () => {
   if (!fabricCanvas) return
@@ -1045,23 +1400,35 @@ const setupEraserTool = () => {
   fabricCanvas.off('mouse:down')
   fabricCanvas.off('mouse:move')
   fabricCanvas.off('mouse:up')
+  fabricCanvas.off('touch:start')
+  fabricCanvas.off('touch:move')
+  fabricCanvas.off('touch:end')
   
-  fabricCanvas.on('mouse:down', (e) => {
-    if (isRightClickMode.value || e.e.button === 2) return
+  const handlePointerDown = (e) => {
+    if (isRightClickMode.value || (e.e && e.e.button === 2)) return
     
     isErasing = true
     eraseAtPoint(e)
-  })
+  }
   
-  fabricCanvas.on('mouse:move', (e) => {
-    console.log('on the double 4')
+  const handlePointerMove = (e) => {
     if (!isErasing) return
     eraseAtPoint(e)
-  })
+  }
   
-  fabricCanvas.on('mouse:up', () => {
+  const handlePointerUp = () => {
     isErasing = false
-  })
+  }
+  
+  // Mouse events
+  fabricCanvas.on('mouse:down', handlePointerDown)
+  fabricCanvas.on('mouse:move', handlePointerMove)
+  fabricCanvas.on('mouse:up', handlePointerUp)
+  
+  // Touch events
+  fabricCanvas.on('touch:start', handlePointerDown)
+  fabricCanvas.on('touch:move', handlePointerMove)
+  fabricCanvas.on('touch:end', handlePointerUp)
 }
 
 const eraseAtPoint = (e) => {
@@ -1360,22 +1727,22 @@ const sendObjectToServer = (object, action) => {
 }
 
 const handleWebSocketMessage = (data) => {
-  console.log('📨 Received WebSocket:', data.type, data)
+  // console.log('📨 Received WebSocket:', data.type, data)
   
   switch (data.type) {
     case 'object_added':
-      console.log('🟢 Adding remote object:', data.object?.type, 'from:', data.object?.userName)
+      // console.log('🟢 Adding remote object:', data.object?.type, 'from:', data.object?.userName)
       addRemoteObject(data.object)
       break
       
     case 'object_modified':
-      console.log('🟡 Modifying remote object:', data.object_id,data.object)
+      // console.log('🟡 Modifying remote object:', data.object_id,data.object)
     //   data.object.id = data.object_id
       modifyRemoteObject(data.object,data.object_id)
       break
       
     case 'clear_board':
-      console.log('🗑️ Board cleared by:', data.user_name)
+      // console.log('🗑️ Board cleared by:', data.user_name)
     //   alert('object is cleared')
       // Handle remote board clearing
       if (fabricCanvas && data.boardId == props.boardId) {
@@ -1387,22 +1754,22 @@ const handleWebSocketMessage = (data) => {
       break
     
     case 'object_removed':
-      console.log('🔴 Removing remote object:', data.object_id)
+      // console.log('🔴 Removing remote object:', data.object_id)
       removeRemoteObject(data.object_id)
       break
     case 'cursor_moved':
-      console.log('🎯 CURSOR MOVED received:', {
-        user: data.user_name,
-        userId: data.user_id,
-        position: data.position,
-        color: data.user_color
-      })
+      // console.log('🎯 CURSOR MOVED received:', {
+      //   user: data.user_name,
+      //   userId: data.user_id,
+      //   position: data.position,
+      //   color: data.user_color
+      // })
       updateLiveCursor(data)
       
       break
       
     default:
-      console.log('⚪ Unknown message type:', data.type)
+      // console.log('⚪ Unknown message type:', data.type)
   }
 }
 
@@ -1427,12 +1794,13 @@ const addRemoteObject = (objectData) => {
   let duplicateFound = false
   let duplicateIndex = -1
   let duplicateObject = null
-  
+  console.log(existingObjects,objectData)
   for (let i = 0; i < existingObjects.length; i++) {
     const obj = existingObjects[i]
     // Check both obj.id and obj.toObject().id for comparison
     const objId = obj.id || (obj.toObject && obj.toObject().id)
-    if (objId && objId === objectData.id && obj._userId === objectData.userId) {
+    if (objId && objId === objectData.id ) {
+      // && obj._userId === objectData.userId
       duplicateFound = true
       duplicateIndex = i
       duplicateObject = obj
@@ -1440,6 +1808,8 @@ const addRemoteObject = (objectData) => {
       break
     }
   }
+
+  
   
   // If duplicate found, remove the old one before adding the new one
   if (duplicateFound && duplicateObject) {
@@ -1738,8 +2108,9 @@ const modifyRemoteObject = (objectData, passedID) => {
       // Insert at the same z-index to maintain layering
       fabricCanvas.insertAt(newObject, oldZIndex, false)
       fabricCanvas.renderAll()
-    // console.log('Object not found for modification, adding as new',objectData.userId, props.userId)
-    addRemoteObject(objectData)
+      var dt =  objectData.type == 'text' ? newObject : objectData
+      // console.log('Object not found for modification, adding as new',objectData.userId, props.userId)
+      addRemoteObject(dt)
       console.log('✅ Object replaced successfully at index:', oldZIndex)
     }
   } else {
@@ -1908,6 +2279,53 @@ const clearCanvas = () => {
   notificationStore.info('Cleared', 'Whiteboard cleared')
 }
 
+// const setupCursorTracking = () => {
+//   if (!fabricCanvas || !canvasContainer.value) return
+  
+//   let lastCursorSend = 0
+//   const CURSOR_THROTTLE = 50 // Send cursor updates every 50ms max
+  
+//   // Remove existing event listeners
+//   canvasContainer.value.removeEventListener('mousemove', handleMouseMove)
+  
+//   // Add new event listener to container
+//   canvasContainer.value.addEventListener('mousemove', handleMouseMove)
+  
+//   function handleMouseMove(e) {
+//     // console.log('🖱️ Container mouse move detected', e)
+    
+//     if (!props.socket || props.socket.readyState !== WebSocket.OPEN) return
+    
+//     const now = Date.now()
+//     if (now - lastCursorSend < CURSOR_THROTTLE) return
+    
+//     // Get pointer position relative to canvas
+//     const rect = canvasContainer.value.getBoundingClientRect()
+//     const x = e.clientX - rect.left
+//     const y = e.clientY - rect.top
+    
+//     // Adjust for canvas zoom
+//     const adjustedX = x / zoom.value
+//     const adjustedY = y / zoom.value
+    
+//     const cursorData = {
+//       type: 'cursor_move',
+//       position: { x: adjustedX, y: adjustedY },
+//       user_id: props.userId,
+//       user_name: props.userName,
+//       user_color: props.userColor
+//     }
+    
+//     // console.log('📤 Sending cursor move from container:', cursorData)
+//     props.socket.send(JSON.stringify(cursorData))
+//     lastCursorSend = now
+//   }
+// }
+
+
+
+// Lifecycle
+
 const setupCursorTracking = () => {
   if (!fabricCanvas || !canvasContainer.value) return
   
@@ -1916,13 +2334,23 @@ const setupCursorTracking = () => {
   
   // Remove existing event listeners
   canvasContainer.value.removeEventListener('mousemove', handleMouseMove)
+  canvasContainer.value.removeEventListener('touchmove', handleTouchMove)
   
-  // Add new event listener to container
-  canvasContainer.value.addEventListener('mousemove', handleMouseMove)
-  
+  // Handle mouse move
   function handleMouseMove(e) {
-    console.log('🖱️ Container mouse move detected', e)
-    
+    sendCursorPosition(e.clientX, e.clientY)
+  }
+  
+  // Handle touch move
+  function handleTouchMove(e) {
+    e.preventDefault()
+    if (e.touches.length > 0) {
+      const touch = e.touches[0]
+      sendCursorPosition(touch.clientX, touch.clientY)
+    }
+  }
+  
+  function sendCursorPosition(clientX, clientY) {
     if (!props.socket || props.socket.readyState !== WebSocket.OPEN) return
     
     const now = Date.now()
@@ -1930,8 +2358,8 @@ const setupCursorTracking = () => {
     
     // Get pointer position relative to canvas
     const rect = canvasContainer.value.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     
     // Adjust for canvas zoom
     const adjustedX = x / zoom.value
@@ -1945,15 +2373,16 @@ const setupCursorTracking = () => {
       user_color: props.userColor
     }
     
-    console.log('📤 Sending cursor move from container:', cursorData)
     props.socket.send(JSON.stringify(cursorData))
     lastCursorSend = now
   }
+  
+  // Add new event listeners
+  canvasContainer.value.addEventListener('mousemove', handleMouseMove)
+  canvasContainer.value.addEventListener('touchmove', handleTouchMove, { passive: false })
 }
 
 
-
-// Lifecycle
 onMounted(() => {
   nextTick(() => {
     initCanvas()
@@ -1986,7 +2415,15 @@ onUnmounted(() => {
       canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
       canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
       canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
+    
+     // Touch events
+    canvasContainer.value.removeEventListener('touchstart', canvasContainer.value._drawingHandlers.touchstart)
+    canvasContainer.value.removeEventListener('touchmove', canvasContainer.value._drawingHandlers.touchmove)
+    canvasContainer.value.removeEventListener('touchend', canvasContainer.value._drawingHandlers.touchend)
+  
     }
+
+    
   }
   
   window.removeEventListener('resize', handleResize)

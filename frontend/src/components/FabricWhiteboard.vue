@@ -855,9 +855,6 @@ const setupCanvasEvents = () => {
   })
 }
 
-
-
-// Drawing Tools
 const selectTool = (tool) => {
   activeTool.value = tool
   
@@ -874,20 +871,26 @@ const selectTool = (tool) => {
   fabricCanvas.off('mouse:move')
   fabricCanvas.off('mouse:up')
 
-   // Clean up container listeners for drawing tools
-    if (canvasContainer.value && canvasContainer.value._drawingHandlers) {
-        canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
-        canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
-        canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
-        delete canvasContainer.value._drawingHandlers
-    }
+  // Clean up container listeners for drawing tools
+  if (canvasContainer.value && canvasContainer.value._drawingHandlers) {
+    // Mouse events
+    canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
+    canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
+    canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
+    
+    // Touch events
+    canvasContainer.value.removeEventListener('touchstart', canvasContainer.value._drawingHandlers.touchstart)
+    canvasContainer.value.removeEventListener('touchmove', canvasContainer.value._drawingHandlers.touchmove)
+    canvasContainer.value.removeEventListener('touchend', canvasContainer.value._drawingHandlers.touchend)
+    
+    delete canvasContainer.value._drawingHandlers
+  }
+  
   // Reset any drawing state
   isDrawing.value = false
-
-    // Add container event listeners for drawing tools
+  
+  // Add container event listeners for drawing tools
   let containerMouseDownHandler, containerMouseMoveHandler, containerMouseUpHandler
-  
-  
   
   switch (tool) {
     case 'select':
@@ -923,20 +926,25 @@ const selectTool = (tool) => {
   }
 }
 
+
+
 const setupTextTool = () => {
   if (!fabricCanvas) return
   
   // Clear any existing mouse down handlers
   fabricCanvas.off('mouse:down')
   
-  // Add text tool click handler
-  fabricCanvas.on('mouse:down', (e) => {
-    // Only handle left-click
-    if (e.e.button !== 0 || isRightClickMode.value) return
+  // Handle both mouse and touch for text tool
+  const handlePointerDown = (e) => {
+    // Only handle left-click for mouse
+    if (e.e && e.e.button !== 0 && e.e.button !== undefined) return
     
     const pointer = fabricCanvas.getPointer(e.e)
     showTextInput(pointer.x, pointer.y)
-  })
+  }
+  
+  fabricCanvas.on('mouse:down', handlePointerDown)
+  fabricCanvas.on('touch:start', handlePointerDown)
   
   // Optional: Show text cursor more clearly
   fabricCanvas.hoverCursor = 'text'
@@ -952,13 +960,28 @@ const setupContainerDrawingTool = (tool) => {
   let startPoint = null
   let isDrawing = false
   
-  const handleContainerMouseDown = (e) => {
-    if (e.button !== 0 || isRightClickMode.value) return
-    
+  // Handle both mouse and touch events
+  const handlePointerDown = (e) => {
+    // Prevent default to avoid scrolling on touch devices
     e.preventDefault()
+    
+    // Get pointer coordinates (works for both mouse and touch)
+    let clientX, clientY
+    
+    if (e.type.includes('touch')) {
+      const touch = e.touches[0]
+      clientX = touch.clientX
+      clientY = touch.clientY
+    } else {
+      // Only handle left-click for mouse
+      if (e.button !== 0 || isRightClickMode.value) return
+      clientX = e.clientX
+      clientY = e.clientY
+    }
+    
     const rect = canvasContainer.value.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     
     // Adjust for zoom
     const adjustedX = x / zoom.value
@@ -1005,13 +1028,26 @@ const setupContainerDrawingTool = (tool) => {
     }
   }
   
-  const handleContainerMouseMove = (e) => {
+  const handlePointerMove = (e) => {
     if (!isDrawing || !shape) return
     
     e.preventDefault()
+    
+    // Get pointer coordinates
+    let clientX, clientY
+    
+    if (e.type.includes('touch')) {
+      const touch = e.touches[0]
+      clientX = touch.clientX
+      clientY = touch.clientY
+    } else {
+      clientX = e.clientX
+      clientY = e.clientY
+    }
+    
     const rect = canvasContainer.value.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     
     // Adjust for zoom
     const adjustedX = x / zoom.value
@@ -1043,9 +1079,10 @@ const setupContainerDrawingTool = (tool) => {
     fabricCanvas.renderAll()
   }
   
-  const handleContainerMouseUp = (e) => {
+  const handlePointerUp = (e) => {
     if (!isDrawing || !shape) return
     
+    e.preventDefault()
     isDrawing = false
     shape._isDrawing = false
     
@@ -1070,18 +1107,28 @@ const setupContainerDrawingTool = (tool) => {
     }, 50)
   }
   
-  // Add event listeners to container
-  canvasContainer.value.addEventListener('mousedown', handleContainerMouseDown)
-  canvasContainer.value.addEventListener('mousemove', handleContainerMouseMove)
-  canvasContainer.value.addEventListener('mouseup', handleContainerMouseUp)
+  // Add event listeners for both mouse and touch
+  // Mouse events
+  canvasContainer.value.addEventListener('mousedown', handlePointerDown)
+  canvasContainer.value.addEventListener('mousemove', handlePointerMove)
+  canvasContainer.value.addEventListener('mouseup', handlePointerUp)
+  
+  // Touch events (for mobile/touch devices)
+  canvasContainer.value.addEventListener('touchstart', handlePointerDown, { passive: false })
+  canvasContainer.value.addEventListener('touchmove', handlePointerMove, { passive: false })
+  canvasContainer.value.addEventListener('touchend', handlePointerUp, { passive: false })
   
   // Store handlers for cleanup
   canvasContainer.value._drawingHandlers = {
-    mousedown: handleContainerMouseDown,
-    mousemove: handleContainerMouseMove,
-    mouseup: handleContainerMouseUp
+    mousedown: handlePointerDown,
+    mousemove: handlePointerMove,
+    mouseup: handlePointerUp,
+    touchstart: handlePointerDown,
+    touchmove: handlePointerMove,
+    touchend: handlePointerUp
   }
 }
+
 
 const setupEraserTool = () => {
   if (!fabricCanvas) return
@@ -1095,23 +1142,35 @@ const setupEraserTool = () => {
   fabricCanvas.off('mouse:down')
   fabricCanvas.off('mouse:move')
   fabricCanvas.off('mouse:up')
+  fabricCanvas.off('touch:start')
+  fabricCanvas.off('touch:move')
+  fabricCanvas.off('touch:end')
   
-  fabricCanvas.on('mouse:down', (e) => {
-    if (isRightClickMode.value || e.e.button === 2) return
+  const handlePointerDown = (e) => {
+    if (isRightClickMode.value || (e.e && e.e.button === 2)) return
     
     isErasing = true
     eraseAtPoint(e)
-  })
+  }
   
-  fabricCanvas.on('mouse:move', (e) => {
-    console.log('on the double 4')
+  const handlePointerMove = (e) => {
     if (!isErasing) return
     eraseAtPoint(e)
-  })
+  }
   
-  fabricCanvas.on('mouse:up', () => {
+  const handlePointerUp = () => {
     isErasing = false
-  })
+  }
+  
+  // Mouse events
+  fabricCanvas.on('mouse:down', handlePointerDown)
+  fabricCanvas.on('mouse:move', handlePointerMove)
+  fabricCanvas.on('mouse:up', handlePointerUp)
+  
+  // Touch events
+  fabricCanvas.on('touch:start', handlePointerDown)
+  fabricCanvas.on('touch:move', handlePointerMove)
+  fabricCanvas.on('touch:end', handlePointerUp)
 }
 
 const eraseAtPoint = (e) => {
@@ -1477,12 +1536,13 @@ const addRemoteObject = (objectData) => {
   let duplicateFound = false
   let duplicateIndex = -1
   let duplicateObject = null
-  
+  console.log(existingObjects,objectData)
   for (let i = 0; i < existingObjects.length; i++) {
     const obj = existingObjects[i]
     // Check both obj.id and obj.toObject().id for comparison
     const objId = obj.id || (obj.toObject && obj.toObject().id)
-    if (objId && objId === objectData.id && obj._userId === objectData.userId) {
+    if (objId && objId === objectData.id ) {
+      // && obj._userId === objectData.userId
       duplicateFound = true
       duplicateIndex = i
       duplicateObject = obj
@@ -1490,6 +1550,8 @@ const addRemoteObject = (objectData) => {
       break
     }
   }
+
+  
   
   // If duplicate found, remove the old one before adding the new one
   if (duplicateFound && duplicateObject) {
@@ -1788,8 +1850,9 @@ const modifyRemoteObject = (objectData, passedID) => {
       // Insert at the same z-index to maintain layering
       fabricCanvas.insertAt(newObject, oldZIndex, false)
       fabricCanvas.renderAll()
-    // console.log('Object not found for modification, adding as new',objectData.userId, props.userId)
-    addRemoteObject(objectData)
+      var dt =  objectData.type == 'text' ? newObject : objectData
+      // console.log('Object not found for modification, adding as new',objectData.userId, props.userId)
+      addRemoteObject(dt)
       console.log('✅ Object replaced successfully at index:', oldZIndex)
     }
   } else {
@@ -1958,6 +2021,8 @@ const clearCanvas = () => {
   notificationStore.info('Cleared', 'Whiteboard cleared')
 }
 
+
+
 const setupCursorTracking = () => {
   if (!fabricCanvas || !canvasContainer.value) return
   
@@ -1966,13 +2031,23 @@ const setupCursorTracking = () => {
   
   // Remove existing event listeners
   canvasContainer.value.removeEventListener('mousemove', handleMouseMove)
+  canvasContainer.value.removeEventListener('touchmove', handleTouchMove)
   
-  // Add new event listener to container
-  canvasContainer.value.addEventListener('mousemove', handleMouseMove)
-  
+  // Handle mouse move
   function handleMouseMove(e) {
-    // console.log('🖱️ Container mouse move detected', e)
-    
+    sendCursorPosition(e.clientX, e.clientY)
+  }
+  
+  // Handle touch move
+  function handleTouchMove(e) {
+    e.preventDefault()
+    if (e.touches.length > 0) {
+      const touch = e.touches[0]
+      sendCursorPosition(touch.clientX, touch.clientY)
+    }
+  }
+  
+  function sendCursorPosition(clientX, clientY) {
     if (!props.socket || props.socket.readyState !== WebSocket.OPEN) return
     
     const now = Date.now()
@@ -1980,8 +2055,8 @@ const setupCursorTracking = () => {
     
     // Get pointer position relative to canvas
     const rect = canvasContainer.value.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     
     // Adjust for canvas zoom
     const adjustedX = x / zoom.value
@@ -1995,15 +2070,16 @@ const setupCursorTracking = () => {
       user_color: props.userColor
     }
     
-    // console.log('📤 Sending cursor move from container:', cursorData)
     props.socket.send(JSON.stringify(cursorData))
     lastCursorSend = now
   }
+  
+  // Add new event listeners
+  canvasContainer.value.addEventListener('mousemove', handleMouseMove)
+  canvasContainer.value.addEventListener('touchmove', handleTouchMove, { passive: false })
 }
 
 
-
-// Lifecycle
 onMounted(() => {
   nextTick(() => {
     initCanvas()
@@ -2036,7 +2112,15 @@ onUnmounted(() => {
       canvasContainer.value.removeEventListener('mousedown', canvasContainer.value._drawingHandlers.mousedown)
       canvasContainer.value.removeEventListener('mousemove', canvasContainer.value._drawingHandlers.mousemove)
       canvasContainer.value.removeEventListener('mouseup', canvasContainer.value._drawingHandlers.mouseup)
+    
+     // Touch events
+    canvasContainer.value.removeEventListener('touchstart', canvasContainer.value._drawingHandlers.touchstart)
+    canvasContainer.value.removeEventListener('touchmove', canvasContainer.value._drawingHandlers.touchmove)
+    canvasContainer.value.removeEventListener('touchend', canvasContainer.value._drawingHandlers.touchend)
+  
     }
+
+    
   }
   
   window.removeEventListener('resize', handleResize)
