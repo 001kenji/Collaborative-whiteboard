@@ -13,7 +13,7 @@ app = FastAPI(title="Collaborative Whiteboard API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://your-frontend.com",
+        "https://whiteboard-meet.netlify.app",
         "http://localhost:3000"
     ],
     allow_credentials=True,
