@@ -1,7 +1,7 @@
 # Collaborative Whiteboard with Fabric.js
 
 A real-time collaborative whiteboard with advanced drawing tools and multi-user synchronization.
-
+![Screenshot](Screenshot%202026-01-09%20151417.png)
 ## Description
 Professional whiteboard application with Fabric.js for object manipulation, real-time collaboration, text editing, shape tools, export/import, and user persistence.
 
