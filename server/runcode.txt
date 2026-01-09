@@ -1,0 +1,224 @@
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+
+<template>
+  <div class="fabric-whiteboard">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-section">
+        <button @click="selectTool('select')" :class="{ active: activeTool === 'select' }" title="Select">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+          </svg>
+        </button>
+        <button @click="selectTool('pencil')" :class="{ active: activeTool === 'pencil' }" title="Pencil">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+        
+        <button @click="selectTool('rectangle')" :class="{ active: activeTool === 'rectangle' }" title="Rectangle">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+          </svg>
+        </button>
+        <button @click="selectTool('circle')" :class="{ active: activeTool === 'circle' }" title="Circle">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+        <button @click="selectTool('text')" :class="{ active: activeTool === 'text' }" title="Text">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </button>
+        <button @click="selectTool('eraser')" :class="{ active: activeTool === 'eraser' }" title="Eraser">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="toolbar-section">
+        <div class="color-picker">
+          <button
+            v-for="color in colors"
+            :key="color"
+            @click="setColor(color)"
+            :class="{ active: strokeColor === color }"
+            :style="{ backgroundColor: color }"
+            :title="color"
+          />
+        </div>
+        <input type="color" v-model="strokeColor" @input="setColor(strokeColor)" />
+      </div>
+      
+      <div class="toolbar-section">
+        <label>Size:</label>
+        <input type="range" min="1" max="50" v-model="strokeWidth" @input="setStrokeWidth" />
+        <span>{{ strokeWidth }}px</span>
+      </div>
+      
+      <div class="toolbar-section">
+        <button @click="toggleFill" :class="{ active: fillEnabled }" title="Fill">
+          Fill
+        </button>
+        <input v-if="fillEnabled" type="color" v-model="fillColor" @input="setFillColor" />
+      </div>
+      
+      <div class="toolbar-section">
+        <button @click="undo" :disabled="!canUndo" title="Undo">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+          </svg>
+        </button>
+        <button @click="redo" :disabled="!canRedo" title="Redo">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+        <button @click="clearCanvas" title="Clear">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="toolbar-section">
+        <button @click="toggleGrid" :class="{ active: showGrid }" title="Grid">
+          Grid
+        </button>
+        <button @click="toggleSnap" :class="{ active: snapToGrid }" title="Snap to Grid">
+          Snap
+        </button>
+        <button @click="zoomIn" title="Zoom In">+</button>
+        <button @click="zoomOut" title="Zoom Out">-</button>
+        <button @click="resetZoom" title="Reset Zoom">1:1</button>
+        <span class="zoom-level">{{ Math.round(zoom * 100) }}%</span>
+      </div>
+      
+      <div class="toolbar-section">
+        <button @click="exportJSON" title="Export JSON">
+          Export
+        </button>
+        <button @click="exportImage" title="Export Image">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </button>
+        <button @click="importJSON" title="Import JSON">
+          Import
+        </button>
+      </div>
+
+      <div class="toolbar-section">
+        <label class="right-click-toggle">
+          <input type="checkbox" v-model="rightClickEnabled" />
+          Right-click toggle
+        </label>
+      </div>
+    </div>
+    
+    <!-- Canvas Container -->
+    <div  class="canvas-container" ref="canvasContainer">
+      <canvas  ref="canvas"></canvas>
+      
+      <!-- Live Cursors -->
+      <div class="cursors-overlay">
+        <div
+          v-for="(cursor, userId) in liveCursors"
+          :key="userId"
+          class="cursor"
+          :style="{
+            left: cursor.x + 'px',
+            top: cursor.y + 'px',
+            borderColor: cursor.color
+          }"
+          :title="cursor.name"
+        >
+          <div class="cursor-dot" :style="{ backgroundColor: cursor.color }"></div>
+          <div class="cursor-name">{{ cursor.name }}</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Text Input Modal -->
+    <div v-if="textInputActive" class="text-input-modal">
+      <div class="modal-content">
+        <h3>Add Text</h3>
+        <input
+          v-model="textInput"
+          @keyup.enter="addText"
+          @keyup.esc="cancelText"
+          placeholder="Enter text..."
+          ref="textInputField"
+          autofocus
+        />
+        <div class="modal-actions">
+          <button @click="addText">Add</button>
+          <button @click="cancelText">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Name Change Button -->
+    <div class="name-change-btn">
+      <button @click="showNameChange = true" title="Change your name">
+        {{ props.userName || 'User' }}
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Name Change Modal -->
+    <div v-if="showNameChange" class="name-change-modal">
+      <div class="modal-content">
+        <h3>Change Your Name</h3>
+        <input
+          v-model="newUserName"
+          @keyup.enter="updateUserName"
+          placeholder="Enter new name"
+          class="name-input"
+          autofocus
+        />
+        <div class="modal-actions">
+          <button @click="updateUserName" class="btn-primary">Update</button>
+          <button @click="showNameChange = false" class="btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stickers Panel -->
+    <div v-if="showStickers" class="stickers-panel">
+      <h3>Stickers & Emojis</h3>
+      <div class="stickers-grid">
+        <button
+          v-for="sticker in stickers"
+          :key="sticker.emoji"
+          @click="addSticker(sticker)"
+          class="sticker-btn"
+          :title="sticker.name"
+        >
+          {{ sticker.emoji }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- History Timeline -->
+    <div v-if="showHistory" class="history-timeline">
+      <h3>History</h3>
+      <div class="history-list">
+        <div
+          v-for="(action, index) in history"
+          :key="index"
+          @click="restoreHistory(index)"
+          :class="{ active: historyIndex === index }"
+          class="history-item"
+        >
+          {{ action.type }} - {{ new Date(action.timestamp).toLocaleTimeString() }}
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

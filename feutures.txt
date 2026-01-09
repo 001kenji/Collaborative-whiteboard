@@ -1,0 +1,37 @@
+Export/Import: Add ability to save/load boards as images or JSON
+
+Text Tool: Implement actual text input
+
+Shape Fill: Add fill options for shapes
+
+Layers: Add layer support for better organization
+
+History: Complete history of all actions with timeline
+
+Grid/Snap: Add grid and snap-to-grid functionality
+
+Zoom/Pan: Add zoom and pan capabilities
+
+Stickers/Emojis: Add pre-made shapes and emojis
+
+Audio/Video Chat: Integrate WebRTC for voice/video
+
+Auto-save: Automatically save board state
+
+
+migrate to fabric.js 'Fabric.js ⭐ Recommended
+
+✅ Excellent for object manipulation
+
+✅ Built-in object selection, scaling, rotating
+
+✅ SVG export/import
+
+✅ Rich API for shapes, text, images
+
+❌ Larger bundle size (~300KB)
+
+❌ Learning curve'
+
+###################
+remove showing recent boards feutuer in base usl

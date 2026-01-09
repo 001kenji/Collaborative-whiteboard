@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     
+      <meta
+  http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self';
+    
+    script-src 'self'      'unsafe-inline'      'unsafe-eval' 
+      https://elearning-platform-1zjy.onrender.com 
+      blob:;
+    
+    style-src 
+      'self' 
+      'unsafe-inline'
+      https://fonts.googleapis.com 
+      https://elearning-platform-1zjy.onrender.com;
+    
+    font-src 
+      'self' 
+      data: 
+      https://fonts.gstatic.com 
+      https://elearning-platform-1zjy.onrender.com;
+    
+    img-src 
+      'self' 
+      data: 
+      blob:
+      https://elearning-platform-1zjy.onrender.com
+      https://assets.mixkit.co;
+    
+    connect-src 
+      'self' 
+      ws: 
+      wss: 
+      blob: 
+      data:
+      http://localhost:8000 
+      http://localhost:3000 
+      http://elearning-platform-1zjy.onrender.com 
+      https://elearning-platform-1zjy.onrender.com
+      wss://your-whiteboard-backend.onrender.com
+      https://e-leraning-platform.netlify.app
+    
+    media-src 
+      'self' 
+      blob: 
+      data:
+      https://assets.mixkit.co 
+      https://elearning-platform-1zjy.onrender.com;
+    
+    frame-src 
+      'self' 
+      blob:
+      https://elearning-platform-1zjy.onrender.com;
+    
+    worker-src 
+      'self' 
+      blob: 
+      data:;
+    
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    block-all-mixed-content;
+    upgrade-insecure-requests;
+  "
+/>
+    <title>Collaborative Whiteboard</title>
+  </head>
+  <body>
+    <div class="w-full min-w-full h-full min-h-full" id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
